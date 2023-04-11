@@ -1,7 +1,6 @@
 # Parkitect blueprint reader
 
-A fun little side project which challenge is to be able to read [Parkitect](https://themeparkitect.com/)'s blueprint
-file format.
+A Python module able to read [Parkitect](https://themeparkitect.com/)'s blueprint file format.
 
 References:
 
