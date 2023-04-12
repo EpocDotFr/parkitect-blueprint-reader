@@ -1,6 +1,6 @@
 # Parkitect blueprint reader
 
-A Python module able to read [Parkitect](https://themeparkitect.com/)'s blueprint file format.
+A Python CLI tool which display information about a given [Parkitect](https://themeparkitect.com/)'s blueprint.
 
 References:
 
