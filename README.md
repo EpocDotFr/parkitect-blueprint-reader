@@ -17,8 +17,9 @@ Clone this repo, and then the usual `pip install -r requirements.txt`.
 
 ## Usage
 
+Simply give either a local path or an URL to the desired blueprint.
+
 ````shell
 $ python run.py path/to/a/blueprint.png
+$ python run.py https://url.to/a/blueprint.png
 ````
-
-Will show information extracted from the blueprint.
