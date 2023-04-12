@@ -30,8 +30,6 @@ def run() -> None:
 
     print(read_blueprint(args.file))
 
-    args.file.close()
-
 
 if __name__ == '__main__':
     run()
