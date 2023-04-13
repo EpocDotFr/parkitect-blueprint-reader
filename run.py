@@ -1,4 +1,6 @@
-from blueprint_reader import read_blueprint
+from blueprint_reader import read_blueprint, BlueprintReadError
+from PIL import UnidentifiedImageError
+from requests import RequestException
 from urllib.parse import urlparse
 from typing import BinaryIO
 from io import BytesIO
@@ -16,10 +18,18 @@ def is_url(url: str) -> bool:
 
 
 def path_or_url_argument(argument: str) -> BinaryIO:
-    if is_url(argument):
-        return BytesIO(requests.get(argument).content)
+    try:
+        if is_url(argument):
+            response = requests.get(argument)
+            response.raise_for_status()
 
-    return open(argument, 'rb')
+            return BytesIO(response.content)
+
+        return open(argument, 'rb')
+    except RequestException as e:
+        raise argparse.ArgumentTypeError(f'Cannot open remote file: {e}') from e
+    except OSError as e:
+        raise argparse.ArgumentTypeError(f'Cannot open local file: {e}') from e
 
 
 def run() -> None:
@@ -28,8 +38,14 @@ def run() -> None:
 
     args = arg_parser.parse_args()
 
-    print(read_blueprint(args.file))
-
+    try:
+        info = read_blueprint(args.file)
+    except UnidentifiedImageError:
+        print(f'This does not look like an image')
+    except BlueprintReadError as e:
+        print(f'This image does not look like a Parkitect blueprint: {e}')
+    else:
+        print(info)
 
 if __name__ == '__main__':
     run()

@@ -1,28 +1,58 @@
-from typing import Dict, BinaryIO
+from typing import Dict, BinaryIO, List
 from bitstring import Bits
 from PIL import Image
+import gzip
+import json
 
 
-def read_blueprint(fp: BinaryIO) -> Dict:
+class BlueprintReadError(Exception):
+    pass
+
+
+def _read_pixels(pixels: List, start: int, stop: int) -> Bits:
+    bits = ''
+
+    for i in range(start, stop):
+        for band in [3, 0, 1, 2]: # Alpha, Red, Green, Blue
+            bits += str(pixels[i][band] & 1)
+
+    return Bits(bin='0b' + bits)
+
+
+def _decode(fp: BinaryIO) -> Bits:
     with Image.open(fp) as img:
         width, height = img.size
-        bands = len(img.getbands())
+        mode = img.mode
 
-        pixels = img.load()
+        pixels = list(img.getdata())
 
     fp.close()
 
-    bits = ''
+    if mode != 'RGBA':
+        raise BlueprintReadError('Blueprints must be RGBA image')
+    elif width != 512 or height != 512:
+        raise BlueprintReadError('Blueprints must be 512x512 pixels')
 
-    for x in range(width):
-        for y in range(height):
-            pixel = pixels[x, y]
+    return _read_pixels(pixels, 0, 8)
 
-            for band in range(bands):
-                bits += str(pixel[band] & 1)
+    # size = _read_pixels(pixels, 0, 32).unpack('uintbe:16')[0]
+    #
+    # if not size:
+    #     raise BlueprintReadError('Could not determine how many pixels to read')
+    # elif size > len(pixels):
+    #     raise BlueprintReadError('Invalid size value')
+    #
+    # return _read_pixels(pixels, 32, size)
 
-    with open('t.bin', 'wb') as fp:
-        Bits(bin='0b' + bits).tofile(fp)
+
+def read_blueprint(fp: BinaryIO) -> Dict:
+    data = _decode(fp)
+
+    with open('test.bin', 'wb') as fp:
+        data.tofile(fp)
+
+    # with gzip.open(f, 'r') as fp:
+    #     data = json.loads(fp.read().decode('utf-8'))
 
     return {}
 
