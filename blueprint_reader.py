@@ -42,11 +42,11 @@ def _decode(fp: BinaryIO) -> Bits:
     # header = _read_pixels(pixels, 0, 6).tobytes()
 
     # if header != bytes.fromhex('53 4D 01'):
-    #     raise BlueprintReadError('Not a blueprint, missing magic header')
+    #     raise BlueprintReadError('Not a Parkitect blueprint')
 
     return _read_pixels(pixels, 0, 6)
 
-    # size = _read_pixels(pixels, 0, 32).unpack('uintbe:16')[0]
+    # size = _read_pixels(pixels, 6, 16).unpack('uint:8')[0]
     #
     # if not size:
     #     raise BlueprintReadError('Could not determine how many pixels to read')
