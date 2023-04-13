@@ -43,7 +43,7 @@ def run() -> None:
     except UnidentifiedImageError:
         print(f'This does not look like an image')
     except BlueprintReadError as e:
-        print(f'This image does not look like a Parkitect blueprint: {e}')
+        print(f'Error reading blueprint: {e}')
     else:
         print(info)
 

@@ -21,19 +21,30 @@ def _read_pixels(pixels: List, start: int, stop: int) -> Bits:
 
 def _decode(fp: BinaryIO) -> Bits:
     with Image.open(fp) as img:
-        width, height = img.size
         mode = img.mode
+
+        if mode != 'RGBA':
+            fp.close()
+
+            raise BlueprintReadError('Blueprints must be RGBA image')
+
+        width, height = img.size
+
+        if width != 512 or height != 512:
+            fp.close()
+
+            raise BlueprintReadError('Blueprints must be 512x512 pixels')
 
         pixels = list(img.getdata())
 
     fp.close()
 
-    if mode != 'RGBA':
-        raise BlueprintReadError('Blueprints must be RGBA image')
-    elif width != 512 or height != 512:
-        raise BlueprintReadError('Blueprints must be 512x512 pixels')
+    # header = _read_pixels(pixels, 0, 6).tobytes()
 
-    return _read_pixels(pixels, 0, 8)
+    # if header != bytes.fromhex('53 4D 01'):
+    #     raise BlueprintReadError('Not a blueprint, missing magic header')
+
+    return _read_pixels(pixels, 0, 6)
 
     # size = _read_pixels(pixels, 0, 32).unpack('uintbe:16')[0]
     #
