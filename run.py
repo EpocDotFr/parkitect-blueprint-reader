@@ -41,7 +41,7 @@ def run() -> None:
     try:
         info = read_blueprint(args.file)
     except UnidentifiedImageError:
-        print(f'This does not look like an image')
+        print(f'You must provide a PNG image')
     except BlueprintReadError as e:
         print(f'Error reading blueprint: {e}')
     else:

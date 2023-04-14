@@ -10,6 +10,9 @@ class BlueprintReadError(Exception):
 
 
 def _read_pixels(pixels: List, start: int, stop: int) -> Bits:
+    if start % 2 != 0 or stop % 2 != 0:
+        raise ValueError('start and stop must be multiples of 2')
+
     bits = ''
 
     for i in range(start, stop):
@@ -20,13 +23,13 @@ def _read_pixels(pixels: List, start: int, stop: int) -> Bits:
 
 
 def _decode(fp: BinaryIO) -> Bits:
-    with Image.open(fp) as img:
+    with Image.open(fp, formats=['png']) as img:
         mode = img.mode
 
         if mode != 'RGBA':
             fp.close()
 
-            raise BlueprintReadError('Blueprints must be RGBA image')
+            raise BlueprintReadError('Blueprints must be RGBA images')
 
         width, height = img.size
 
