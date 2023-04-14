@@ -22,7 +22,7 @@ $ python run.py file
 
 Parkitect is using a digital [steganography](https://en.wikipedia.org/wiki/Steganography) technique to store blueprint
 data inside the blueprint image itself: it is leveraging the [least significant bit](https://en.wikipedia.org/wiki/Bit_numbering#Least_significant_bit_in_digital_steganography)
-of each color values of each pixels.
+of each color channels (red, green, blue, alpha) of each pixels.
 
 References:
 
