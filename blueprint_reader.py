@@ -1,6 +1,6 @@
+from PIL import Image, UnidentifiedImageError
 from typing import Dict, BinaryIO, List
-from bitstring import Bits
-from PIL import Image
+from bitstring import BitArray
 import gzip
 import json
 
@@ -9,36 +9,48 @@ class BlueprintReadError(Exception):
     pass
 
 
-def _read_pixels(pixels: List, start: int, stop: int) -> Bits:
+def _read_pixels(pixels: List, start: int, stop: int) -> BitArray:
     if start % 2 != 0 or stop % 2 != 0:
         raise ValueError('start and stop must be multiples of 2')
 
-    bits = ''
+    bits = BitArray()
+    last_bits = ''
 
-    for i in range(start, stop):
-        for band in [3, 0, 1, 2]: # Alpha, Red, Green, Blue
-            bits += str(pixels[i][band] & 1)
+    for p in range(start, stop):
+        current_bits = ''.join(
+            [str(pixels[p][band] & 1) for band in (3, 0, 1, 2)] # Alpha, Red, Green, Blue
+        )
 
-    return Bits(bin='0b' + bits)
+        if not last_bits:
+            last_bits = current_bits
+        else:
+            bits.append('0b' + current_bits + last_bits)
+
+            last_bits = ''
+
+    return bits
 
 
-def _decode(fp: BinaryIO) -> Bits:
-    with Image.open(fp, formats=['png']) as img:
-        mode = img.mode
+def _decode(fp: BinaryIO) -> BitArray:
+    try:
+        with Image.open(fp, formats=['png']) as img:
+            if img.mode != 'RGBA':
+                fp.close()
 
-        if mode != 'RGBA':
-            fp.close()
+                raise BlueprintReadError('Blueprints must be in RGBA mode')
 
-            raise BlueprintReadError('Blueprints must be RGBA images')
+            width, height = img.size
 
-        width, height = img.size
+            if width != 512 or height != 512:
+                fp.close()
 
-        if width != 512 or height != 512:
-            fp.close()
+                raise BlueprintReadError('Blueprints must be 512x512 pixels')
 
-            raise BlueprintReadError('Blueprints must be 512x512 pixels')
+            pixels = list(img.getdata())
+    except UnidentifiedImageError:
+        fp.close()
 
-        pixels = list(img.getdata())
+        raise BlueprintReadError('Blueprints must be PNG images')
 
     fp.close()
 
@@ -49,7 +61,7 @@ def _decode(fp: BinaryIO) -> Bits:
 
     return _read_pixels(pixels, 0, 6)
 
-    # size = _read_pixels(pixels, 6, 16).unpack('uint:8')[0]
+    # size = _read_pixels(pixels, 6, 14).unpack('uint:32')[0]
     #
     # if not size:
     #     raise BlueprintReadError('Could not determine how many pixels to read')
@@ -62,7 +74,7 @@ def _decode(fp: BinaryIO) -> Bits:
 def read_blueprint(fp: BinaryIO) -> Dict:
     data = _decode(fp)
 
-    with open('test.bin', 'wb') as fp:
+    with open('actual.bin', 'wb') as fp:
         data.tofile(fp)
 
     # with gzip.open(f, 'r') as fp:

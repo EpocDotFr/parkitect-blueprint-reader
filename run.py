@@ -1,5 +1,4 @@
 from blueprint_reader import read_blueprint, BlueprintReadError
-from PIL import UnidentifiedImageError
 from requests import RequestException
 from urllib.parse import urlparse
 from typing import BinaryIO
@@ -40,8 +39,6 @@ def run() -> None:
 
     try:
         info = read_blueprint(args.file)
-    except UnidentifiedImageError:
-        print(f'You must provide a PNG image')
     except BlueprintReadError as e:
         print(f'Error reading blueprint: {e}')
     else:
