@@ -1,6 +1,6 @@
 from PIL import Image, UnidentifiedImageError
 from typing import Dict, BinaryIO, List
-from bitstring import BitArray
+from bitstring import Bits
 import gzip
 import json
 
@@ -9,29 +9,22 @@ class BlueprintReadError(Exception):
     pass
 
 
-def _read_pixels(pixels: List, start: int, stop: int) -> BitArray:
+def _read_pixel(pixels: List, p: int) -> str:
+    return ''.join([
+        str(pixels[p][band] & 1) for band in (3, 0, 1, 2) # Alpha, Red, Green, Blue
+    ])
+
+
+def _read_pixels(pixels: List, start: int, stop: int) -> Bits:
     if start % 2 != 0 or stop % 2 != 0:
         raise ValueError('start and stop must be multiples of 2')
 
-    bits = BitArray()
-    last_bits = ''
-
-    for p in range(start, stop):
-        current_bits = ''.join(
-            [str(pixels[p][band] & 1) for band in (3, 0, 1, 2)] # Alpha, Red, Green, Blue
-        )
-
-        if not last_bits:
-            last_bits = current_bits
-        else:
-            bits.append('0b' + current_bits + last_bits)
-
-            last_bits = ''
-
-    return bits
+    return Bits(bin='0b' + ''.join([
+        _read_pixel(pixels, p + 1) + _read_pixel(pixels, p) for p in range(start, stop, 2)
+    ]))
 
 
-def _decode(fp: BinaryIO) -> BitArray:
+def _decode(fp: BinaryIO) -> Bits:
     try:
         with Image.open(fp, formats=['png']) as img:
             if img.mode != 'RGBA':
