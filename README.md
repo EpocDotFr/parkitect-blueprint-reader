@@ -24,6 +24,11 @@ Parkitect is using a digital [steganography](https://en.wikipedia.org/wiki/Stega
 data inside the blueprint image itself: it is leveraging the [least significant bit](https://en.wikipedia.org/wiki/Bit_numbering#Least_significant_bit_in_digital_steganography)
 of each color channels (red, green, blue, alpha) of each pixels.
 
+These bits forms bytes, which essentially contains:
+
+  - a few bytes of metadata
+  - gzipped JSON containing the actual blueprint data
+
 References:
 
   - [Update 58 - Parkitect dev blog](https://themeparkitect.tumblr.com/post/126855975857/update-58)

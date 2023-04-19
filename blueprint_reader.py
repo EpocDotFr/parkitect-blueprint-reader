@@ -76,4 +76,7 @@ def read_blueprint(fp: BinaryIO) -> Dict:
     return {}
 
 
-__all__ = ['read_blueprint']
+__all__ = [
+    'read_blueprint',
+    'BlueprintReadError',
+]
