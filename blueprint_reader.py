@@ -28,24 +28,18 @@ def _decode(fp: BinaryIO) -> Bits:
     try:
         with Image.open(fp, formats=['png']) as img:
             if img.mode != 'RGBA':
-                fp.close()
-
                 raise BlueprintReadError('Blueprints must be in RGBA mode')
 
             width, height = img.size
 
             if width != 512 or height != 512:
-                fp.close()
-
                 raise BlueprintReadError('Blueprints must be 512x512 pixels')
 
             pixels = list(img.getdata())
     except UnidentifiedImageError:
-        fp.close()
-
         raise BlueprintReadError('Blueprints must be PNG images')
-
-    fp.close()
+    finally:
+        fp.close()
 
     # header = _read_pixels(pixels, 0, 6).tobytes()
 
