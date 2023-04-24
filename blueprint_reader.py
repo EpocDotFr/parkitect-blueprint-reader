@@ -55,7 +55,7 @@ def _decode(fp: BinaryIO) -> Bits:
     # elif gzip_size > 512 * 512 / 2: # Number of pixels divided by 2 (1 byte is stored using 2 pixels)
     #     raise BlueprintReadError('Invalid gzip data size value')
     #
-    # return _read_pixels(pixels, 32, size)
+    # return _read_pixels(pixels, 16, gzip_size * 2)
 
 
 def read_blueprint(fp: BinaryIO) -> Dict:
