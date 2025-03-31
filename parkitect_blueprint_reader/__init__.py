@@ -1,5 +1,6 @@
 from parkitect_blueprint_reader.__version__ import __version__
 from argparse import ArgumentParser
+from sys import stderr, stdout
 from typing import Dict
 
 
@@ -9,7 +10,7 @@ def read(filename: str, pretty: bool = False) -> Dict:
 
 def cli() -> None:
     arg_parser = ArgumentParser(
-        description='The staticjinjaplus CLI which should be your main and only way to interact with staticjinjaplus.'
+        description='CLI tool to read Parkitect\'s blueprints metadata'
     )
 
     arg_parser.add_argument(
@@ -20,7 +21,7 @@ def cli() -> None:
 
     arg_parser.add_argument(
         '-f', '--filename',
-        help='The blueprint image to read'
+        help='The blueprint file to read metadata from'
     )
 
     arg_parser.add_argument(
