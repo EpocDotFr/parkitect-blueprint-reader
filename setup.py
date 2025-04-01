@@ -8,7 +8,7 @@ from os import path
 import sys
 
 NAME = 'parkitect-blueprint-reader'
-DESCRIPTION = 'TODO.'
+DESCRIPTION = 'Python API and CLI tool to read Parkitect\'s blueprints metadata.'
 URL = 'https://github.com/EpocDotFr/parkitect-blueprint-reader'
 EMAIL = 'contact.nospam@epoc.nospam.fr'
 AUTHOR = 'Maxime "Epoc" Gross'

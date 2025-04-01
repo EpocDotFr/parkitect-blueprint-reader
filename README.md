@@ -30,33 +30,32 @@ pip install .
 
 ### API
 
-The API consists of one `read()` method which reads metadata from the given blueprint file and returns the parsed data as a dictionary. Exceptions are thrown on
-errors.
-
-**Example usage**:
+The API mainly consists of the `load()` method which reads blueprint metadata from the given binary file-like object and returns the parsed data as a dictionary.
 
 ```python
 import parkitect_blueprint_reader
 from pprint import pprint
 
 try:
-    pprint(
-      parkitect_blueprint_reader.read('coaster.png', pretty=True) # Pretty print is disabled by default
-    )
+    with open('coaster.png', 'rb') as fp:
+        pprint(
+            parkitect_blueprint_reader.load(fp)
+        )
 except Exception as e:
-  print(e)
+    print(e)
 ```
+
+`loads()` may be used intead if feeding bytes is preferred.
 
 ### CLI
 
-The CLI reads metadata from the given blueprint file, then writes the parsed data as JSON to `stdout`. If everything worked successfully, the return code will
-be `0`; however in case of error the return code will be `1`, accompagned by the error message written to `stderr`.
-
-**Example usage**:
+The CLI reads metadata from the given blueprint filename, then writes the parsed data as JSON to `stdout`.
 
 ```shell
-parkitect-blueprint-reader coaster.png --pretty # Pretty print is disabled by default
+parkitect-blueprint-reader coaster.png
 ```
+
+The `--pretty` option may be used to pretty-print the ouputted JSON.
 
 ## References
 
