@@ -17,13 +17,14 @@ VERSION = None  # Pulled from parkitect_blueprint_reader/__version__.py
 
 REQUIRED = [
     'pillow~=11.1',
+    'bitstring~=4.3',
 ]
 
 EXTRAS = {
     'dev': {
         'build~=1.2',
         'twine~=6.0',
-        'setuptools>=69'
+        'setuptools>=69',
     },
 }
 
