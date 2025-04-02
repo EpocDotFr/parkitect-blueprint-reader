@@ -1,7 +1,8 @@
 from parkitect_blueprint_reader.__version__ import __version__
+from typing import Dict, BinaryIO, Tuple
 from bitstring import Bits, BitArray
 from argparse import ArgumentParser
-from typing import Dict, BinaryIO
+from math import floor
 from sys import stdout
 from PIL import Image
 import json
@@ -12,17 +13,32 @@ def load(fp: BinaryIO) -> Dict:
     # TODO checksum
     # TODO gzipped josn
 
-    with Image.open(fp, formats=('PNG',)) as image:
-        for i in range(0, 15, 2):
-            pixel_byte = BitArray()
+    def pixel_to_coords(img: Image, pixel: int) -> Tuple[int, int]:
+        return (
+            pixel % img.width,
+            floor(pixel / img.height)
+        )
 
-            for x in range(i, i + 2):
-                for band in image.getpixel((x, 0)):
-                    pixel_byte.append(
-                        Bits(uint8=band)[-1:]
-                    )
+    def pixels_to_bitarray(img: Image, start: int, length: int) -> BitArray:
+        ret = BitArray()
 
-            print(pixel_byte.pp())
+        for pixel in range(start, start + length):
+            for band in img.getpixel(pixel_to_coords(img, pixel)):
+                print(Bits(uint8=band).bin[-1])
+                ret.append(
+                    Bits(uint8=band)[-1:]
+                )
+
+        return ret
+
+    with Image.open(fp, formats=('PNG',)) as img:
+        print(
+            pixels_to_bitarray(img, 0, 6).pp()
+        )
+
+        print(
+            pixels_to_bitarray(img, 6, 8).uint32
+        )
 
 
 def cli() -> None:
