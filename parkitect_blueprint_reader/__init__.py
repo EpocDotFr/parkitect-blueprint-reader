@@ -6,6 +6,7 @@ from math import floor
 from sys import stdout
 from PIL import Image
 import json
+import gzip
 
 
 def _pixel_to_coords(img: Image, pixel: int) -> Tuple[int, int]:
@@ -18,27 +19,38 @@ def _pixel_to_coords(img: Image, pixel: int) -> Tuple[int, int]:
 def _pixels_to_bitarray(img: Image, start: int, length: int) -> BitArray:
     ret = BitArray()
 
-    for pixel in range(start, start + length):
-        for band in img.getpixel(_pixel_to_coords(img, pixel)):
-            ret.append(
-                Bits(uint8=band)[-1:]
-            )
+    start *= 2
+    length *= 2
 
-    ret.reverse() # 01 4d 53
+    for pixel in range(start, start + length, 2):
+        for p in (pixel + 1, pixel):
+            for band in reversed(img.getpixel(_pixel_to_coords(img, p))):
+                ret.append(
+                    Bits(uint8=band)[-1:]
+                )
 
     return ret
 
 
 def load(fp: BinaryIO) -> Dict:
-    # TODO magic header
     # TODO gzip length
-    # TODO checksum
     # TODO gzipped json
 
     with Image.open(fp, formats=('PNG',)) as img:
-        # 53 4d 01   SM.  0101 0011 0100 1101 0000 0001
-        print( 
-            _pixels_to_bitarray(img, 0, 6).pp()
+        magic_number = _pixels_to_bitarray(img, 0, 3)
+
+        if magic_number.hex != '534d01':
+            raise ValueError('This image is not a Parkitect blueprint')
+
+        gzip_size = _pixels_to_bitarray(img, 3, 4)
+        gzip_size.reverse()
+
+        checksum = _pixels_to_bitarray(img, 7, 16)
+
+        return json.loads(
+            gzip.decompress(
+                _pixels_to_bitarray(img, 23, int(gzip_size.uint32 / 2)).bytes
+            )
         )
 
 
