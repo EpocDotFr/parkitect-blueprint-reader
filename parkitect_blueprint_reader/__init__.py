@@ -1,29 +1,28 @@
 from parkitect_blueprint_reader.__version__ import __version__
+from bitstring import Bits, BitArray
 from argparse import ArgumentParser
 from typing import Dict, BinaryIO
-from bitstring import Bits
 from sys import stdout
-from io import BytesIO
 from PIL import Image
 import json
 
 
 def load(fp: BinaryIO) -> Dict:
+    # TODO length
+    # TODO checksum
+    # TODO gzipped josn
+
     with Image.open(fp, formats=('PNG',)) as image:
-        for i in range(10):
-            r, g, b, a = image.getpixel((i, 0))
+        for i in range(0, 15, 2):
+            pixel_byte = BitArray()
 
-            rr = Bits(uint=r, length=8).bin[-1]
-            rg = Bits(uint=g, length=8).bin[-1]
-            rb = Bits(uint=b, length=8).bin[-1]
-            ra = Bits(uint=a, length=8).bin[-1]
+            for x in range(i, i + 2):
+                for band in image.getpixel((x, 0)):
+                    pixel_byte.append(
+                        Bits(uint8=band)[-1:]
+                    )
 
-            print(rr, rg, rb, ra)
-
-
-def loads(s: bytes) -> Dict:
-    with BytesIO(s) as fp:
-        return load(fp)
+            print(pixel_byte.pp())
 
 
 def cli() -> None:

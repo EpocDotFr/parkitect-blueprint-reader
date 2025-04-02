@@ -30,8 +30,8 @@ pip install .
 
 ### API
 
-The API mainly consists of the `load()` method, which reads blueprint metadata from the given binary file-like object
-and returns the parsed data as a dictionary.
+The API consists of one `load()` method, which reads blueprint metadata from the given binary file-like object and returns
+the parsed data as a dictionary.
 
 ```python
 import parkitect_blueprint_reader
@@ -45,8 +45,6 @@ try:
 except Exception as e:
     print(e)
 ```
-
-`loads()` may be used instead if feeding bytes is preferred.
 
 ### CLI
 
@@ -68,7 +66,7 @@ The `--pretty` option may be used to pretty-print the outputted JSON.
 ### Getting source code and installing the package with dev dependencies
 
   1. Clone the repository
-  2. From the root directory, run: `pip install -e .[dev]` on Linux or `pip install -e ".[dev]"` on Windows
+  2. From the root directory, run: `pip install -e ".[dev]"`
 
 ### Releasing the package
 
