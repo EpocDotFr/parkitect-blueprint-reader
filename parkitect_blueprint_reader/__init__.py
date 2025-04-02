@@ -8,36 +8,37 @@ from PIL import Image
 import json
 
 
+def _pixel_to_coords(img: Image, pixel: int) -> Tuple[int, int]:
+    return (
+        pixel % img.width,
+        floor(pixel / img.height)
+    )
+
+
+def _pixels_to_bitarray(img: Image, start: int, length: int) -> BitArray:
+    ret = BitArray()
+
+    for pixel in range(start, start + length):
+        for band in img.getpixel(_pixel_to_coords(img, pixel)):
+            ret.append(
+                Bits(uint8=band)[-1:]
+            )
+
+    ret.reverse() # 01 4d 53
+
+    return ret
+
+
 def load(fp: BinaryIO) -> Dict:
-    # TODO length
+    # TODO magic header
+    # TODO gzip length
     # TODO checksum
-    # TODO gzipped josn
-
-    def pixel_to_coords(img: Image, pixel: int) -> Tuple[int, int]:
-        return (
-            pixel % img.width,
-            floor(pixel / img.height)
-        )
-
-    def pixels_to_bitarray(img: Image, start: int, length: int) -> BitArray:
-        ret = BitArray()
-
-        for pixel in range(start, start + length):
-            for band in img.getpixel(pixel_to_coords(img, pixel)):
-                print(Bits(uint8=band).bin[-1])
-                ret.append(
-                    Bits(uint8=band)[-1:]
-                )
-
-        return ret
+    # TODO gzipped json
 
     with Image.open(fp, formats=('PNG',)) as img:
-        print(
-            pixels_to_bitarray(img, 0, 6).pp()
-        )
-
-        print(
-            pixels_to_bitarray(img, 6, 8).uint32
+        # 53 4d 01   SM.  0101 0011 0100 1101 0000 0001
+        print( 
+            _pixels_to_bitarray(img, 0, 6).pp()
         )
 
 
