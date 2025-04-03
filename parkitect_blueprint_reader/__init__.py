@@ -2,6 +2,7 @@ from parkitect_blueprint_reader.__version__ import __version__
 from typing import Dict, BinaryIO, Tuple
 from bitstring import Bits, BitArray
 from argparse import ArgumentParser
+from io import BytesIO
 from math import floor
 from sys import stdout
 from PIL import Image
@@ -36,21 +37,18 @@ def load(fp: BinaryIO) -> Dict:
     with Image.open(fp, formats=('PNG',)) as img:
         magic_number = _pixels_to_bitarray(img, 0, 3)
 
-        if magic_number.hex != '534d01':
+        if magic_number.hex != '534d01': # SM.
             raise ValueError('This image is not a Parkitect blueprint')
 
         gzip_size = _pixels_to_bitarray(img, 3, 4).uintle
-        
+
         checksum = _pixels_to_bitarray(img, 7, 16)
         # TODO check checksum
 
-        # TODO Data is JSON Lines (delimited by \r\n 0D0A). Decode JSON for each lines using list generator
-
-        return json.loads(
-            gzip.decompress(
-                _pixels_to_bitarray(img, 23, gzip_size).bytes
-            )
-        )
+        with BytesIO(gzip.decompress(_pixels_to_bitarray(img, 23, gzip_size).bytes)) as decompressed:
+            return [
+                json.loads(line) for line in decompressed.readlines()
+            ]
 
 
 def cli() -> None:

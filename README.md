@@ -31,14 +31,14 @@ pip install .
 ### API
 
 The API consists of one `load()` method, which reads blueprint metadata from the given binary file-like object and returns
-the parsed data as a dictionary.
+the parsed data as a list of dictionaries.
 
 ```python
 import parkitect_blueprint_reader
 from pprint import pprint
 
 try:
-    with open('coaster.png', 'rb') as fp:
+    with open('coaster.png', 'rb') as fp: # Note it's opened in binary mode
         pprint(
             parkitect_blueprint_reader.load(fp)
         )
@@ -48,7 +48,7 @@ except Exception as e:
 
 ### CLI
 
-The CLI reads metadata from the given blueprint filename, then writes the parsed data as JSON to `stdout`.
+The CLI reads metadata from the given blueprint filename, then writes the parsed data as a JSON array to `stdout`.
 
 ```shell
 parkitect-blueprint-reader coaster.png
@@ -60,6 +60,7 @@ The `--pretty` option may be used to pretty-print the outputted JSON.
 
   - [Parkitect devlog - Update 58](https://www.texelraptor.com/blog/update-58)
   - [Reddit - How are blueprints stored?](https://www.reddit.com/r/ThemeParkitect/comments/qpa35q/how_are_blueprints_stored/)
+  - [GitHub - Parkitect Blueprint Investigation](https://github.com/slothsoft/parkitect-blueprint-investigator/)
 
 ## Development
 
