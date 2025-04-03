@@ -33,23 +33,22 @@ def _pixels_to_bitarray(img: Image, start: int, length: int) -> BitArray:
 
 
 def load(fp: BinaryIO) -> Dict:
-    # TODO gzip length
-    # TODO gzipped json
-
     with Image.open(fp, formats=('PNG',)) as img:
         magic_number = _pixels_to_bitarray(img, 0, 3)
 
         if magic_number.hex != '534d01':
             raise ValueError('This image is not a Parkitect blueprint')
 
-        gzip_size = _pixels_to_bitarray(img, 3, 4)
-        gzip_size.reverse()
-
+        gzip_size = _pixels_to_bitarray(img, 3, 4).uintle
+        
         checksum = _pixels_to_bitarray(img, 7, 16)
+        # TODO check checksum
+
+        # TODO Data is JSON Lines (delimited by \r\n 0D0A). Decode JSON for each lines using list generator
 
         return json.loads(
             gzip.decompress(
-                _pixels_to_bitarray(img, 23, int(gzip_size.uint32 / 2)).bytes
+                _pixels_to_bitarray(img, 23, gzip_size).bytes
             )
         )
 
