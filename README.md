@@ -31,7 +31,7 @@ pip install .
 ### API
 
 The API consists of one `load()` method, which reads blueprint metadata from the given binary file-like object and returns
-the parsed data as a list of dictionaries.
+the parsed data as a dictionary.
 
 ```python
 import parkitect_blueprint_reader
@@ -48,7 +48,7 @@ except Exception as e:
 
 ### CLI
 
-The CLI reads metadata from the given blueprint filename, then writes the parsed data as a JSON array to `stdout`.
+The CLI reads metadata from the given blueprint filename, then writes the parsed data as a JSON to `stdout`.
 
 ```shell
 parkitect-blueprint-reader coaster.png

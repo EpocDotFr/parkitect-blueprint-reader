@@ -42,13 +42,32 @@ def load(fp: BinaryIO) -> Dict:
 
         gzip_size = _pixels_to_bitarray(img, 3, 4).uintle
 
-        checksum = _pixels_to_bitarray(img, 7, 16)
-        # TODO check checksum
+        # checksum = _pixels_to_bitarray(img, 7, 16) # TODO check checksum
 
-        with BytesIO(gzip.decompress(_pixels_to_bitarray(img, 23, gzip_size).bytes)) as decompressed:
-            return [
-                json.loads(line) for line in decompressed.readlines()
-            ]
+        uncompressed = _pixels_to_bitarray(img, 23, gzip_size).bytes
+
+    with BytesIO(gzip.decompress(uncompressed)) as decompressed:
+        ret = {}
+
+        for line in decompressed.readlines():
+            json_line = json.loads(line.replace(b'.,', b'.0,').replace(b'.]', b'.0]').replace(b'.}', b'.0}'))
+            json_line_cleaned = {
+                key: value for key, value in json_line.items() if key not in ('@type', '@id')
+            }
+
+            type_ = json_line['@type']
+
+            if type_ not in ret:
+                ret[type_] = {}
+
+            if type_ == 'BlueprintHeader':
+                ret[type_] = json_line_cleaned
+            else:
+                id_ = json_line['@id']
+
+                ret[type_][id_] = json_line_cleaned
+
+        return ret
 
 
 def cli() -> None:
@@ -79,7 +98,7 @@ def cli() -> None:
         json.dump(
             load(fp),
             stdout,
-            indent=4 if args.pretty else None,
+            indent=2 if args.pretty else None,
             separators=None if args.pretty else (',', ':')
         )
 
