@@ -37,7 +37,7 @@ def load(fp: BinaryIO) -> Dict:
     with Image.open(fp, formats=('PNG',)) as img:
         magic_number = _pixels_to_bitarray(img, 0, 3)
 
-        if magic_number.hex != '534d01': # SM.
+        if magic_number.bytes != b'SM\x01':
             raise ValueError('This image is not a Parkitect blueprint')
 
         gzip_size = _pixels_to_bitarray(img, 3, 4).uintle
