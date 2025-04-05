@@ -2,6 +2,7 @@ from parkitect_blueprint_reader.__version__ import __version__
 from typing import Dict, BinaryIO, Tuple
 from bitstring import Bits, BitArray
 from argparse import ArgumentParser
+from hashlib import md5
 from io import BytesIO
 from math import floor
 from sys import stdout
@@ -42,11 +43,16 @@ def load(fp: BinaryIO) -> Dict:
 
         gzip_size = _pixels_to_bitarray(img, 3, 4).uintle
 
-        # checksum = _pixels_to_bitarray(img, 7, 16) # TODO check checksum
+        checksum = _pixels_to_bitarray(img, 7, 16).bytes
 
-        uncompressed = _pixels_to_bitarray(img, 23, gzip_size).bytes
+        compressed = _pixels_to_bitarray(img, 23, gzip_size).bytes
 
-    with BytesIO(gzip.decompress(uncompressed)) as decompressed:
+    checksum_calculated = md5(compressed).digest()
+
+    if checksum != checksum_calculated:
+        raise ValueError(f'Checksum mismatch (stored: {checksum}; calculated: {checksum_calculated})')
+
+    with BytesIO(gzip.decompress(compressed)) as decompressed:
         ret = {}
 
         for line in decompressed.readlines():
