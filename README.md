@@ -56,6 +56,17 @@ parkitect-blueprint-reader coaster.png
 
 The `--pretty` option may be used to pretty-print the outputted JSON.
 
+## Data format
+
+Data is stored in blueprints as follows, using the [least significant bits](https://en.wikipedia.org/wiki/Steganography#Digital_messages)
+steganography technique (described in the reference documents below):
+
+  - A three-bytes [magic number](https://en.wikipedia.org/wiki/Magic_number_(programming)): `SM\x01` (Parkitect's main
+    developer initials)
+  - Size (little-endian unsigned int), in bytes, of the gzippped content to be read
+  - A 16-bytes [MD5 checksum](https://en.wikipedia.org/wiki/MD5)
+  - The actual gzippped data, which is `Size` bytes long
+
 ## References
 
   - [Parkitect devlog - Update 58](https://www.texelraptor.com/blog/update-58)
