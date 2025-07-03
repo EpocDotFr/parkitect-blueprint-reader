@@ -88,6 +88,3 @@ def load(fp: BinaryIO) -> Dict:
                 ret[type_][id_] = json_line_cleaned
 
         return ret
-
-
-__all__ = ['load']
