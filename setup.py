@@ -127,7 +127,7 @@ setup(
     license='DBAD',
     entry_points={
         'console_scripts': [
-            'parkitect-blueprint-reader = parkitect_blueprint_reader:cli',
+            'parkitect-blueprint-reader = parkitect_blueprint_reader.cli:cli',
         ]
     },
     classifiers=CLASSIFIERS,
